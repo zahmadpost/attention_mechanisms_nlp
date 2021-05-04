@@ -80,17 +80,27 @@ class AttentionModelPreprocessor(BasePreprocessor):
         self._fixed_length= fixed_length
         self._fixedlength_unit = FixedLengthUnit(self._fixed_length)
         self._tokenizer = RegexpTokenizer('[^\d\W]+')
-#Filter the vocabulary to only include words in the google news 300 dataset
+```        
+Filter the vocabulary to only include words in the google news 300 dataset
+```
     def _filter_vocab(self, input_: list) ->list:
         return list(word for word in input_ if word in wordembeddingmodel.vocab)
-#Create the word embeddings for each word in the article headline
+```        
+Create the word embeddings for each word in the article headline
+```
     def _process(self, input_: list) ->list:
          #get word embeddings
          vectors = list(wordembeddingmodel[word] for word in input_)
-#Create fit and transform methods (the fit method doesn’t actually do anything but is required by the MatchZoo API)
+         vectors = tf.transpose(tf.convert_to_tensor(vectors))
+        return vectors
+```        
+Create fit and transform methods (the fit method doesn’t actually do anything but is required by the MatchZoo API)
+```
     def fit(self, data_pack: DataPack, verbose: int=1):
         return self
-#Use the MatchZoo data_pack objects to apply the tokenization on each side of the datapack (query and document texts)
+```
+Use the MatchZoo data_pack objects to apply the tokenization on each side of the datapack (query and document texts)
+```
     def transform(self, data_pack: DataPack, verbose: int=1) -> DataPack:
         data_pack = data_pack.copy()
         data_pack.apply_on_text(self._tokenizer.tokenize, inplace=True, verbose=verbose)
