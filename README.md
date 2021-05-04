@@ -23,6 +23,13 @@ In this tutorial, we will understand not only how additive attention mechanisms 
 
 ***!!! Important: MatchZoo relies on an older version of Keras.metrics. It would be a good idea (and may be necessary) to create a new virtual environment (venv) before installing MatchZoo and running your code!!!***
 
+The code below is run with the following dependencies (not a complete list)
+Keras: Version 2.3.0
+Tensorflow: Version 2.2.1
+Numpy: Version 1.18.5
+MatchZoo: 2.2.0
+
+
 ## Defining our NLP/IR Task
 
 Before we dig into the code, let’s define a toy problem: say we are searching for Tweets that contain news article headlines. We want to know how many Tweets contain messaging similar to a given headline. Perhaps we are trying to trace the spread of a story on Twitter but can’t rely exclusively on retweets or exact copies of Tweet bodies. We want to know how far the idea of a story has gone on Twitter. We first start with the article headline text. Then we collect a sampling of tweets within a given timeframe and collect the body text. We label the relevant Tweet as a match. To train our model, we will need to provide tens or hundreds of examples like the one below:
