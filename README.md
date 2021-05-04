@@ -307,7 +307,7 @@ test_df.to_csv(‘AttentionModelResults.csv'
 ```
 
 ## References
-Nicholson, C. (n.d.). A Beginner’s Guide to Attention Mechanisms and Memory Networks. Pathmind. Retrieved May 1, 2021, from https://wiki.pathmind.com/attention-mechanism-memory-network
-Lamba, H. (2019, May 9). Intuitive Understanding of Attention Mechanism in Deep Learning. Medium. https://towardsdatascience.com/intuitive-understanding-of-attention-mechanism-in-deep-learning-6c9482aecf4f
-Weng, L. (2018, June 24). Attention? Attention! Lil’Log. https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html
+* Nicholson, C. (n.d.). A Beginner’s Guide to Attention Mechanisms and Memory Networks. Pathmind. Retrieved May 1, 2021, from https://wiki.pathmind.com/attention-mechanism-memory-network
+* Lamba, H. (2019, May 9). Intuitive Understanding of Attention Mechanism in Deep Learning. Medium. https://towardsdatascience.com/intuitive-understanding-of-attention-mechanism-in-deep-learning-6c9482aecf4f
+* Weng, L. (2018, June 24). Attention? Attention! Lil’Log. https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html
 
