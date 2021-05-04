@@ -41,17 +41,19 @@ Fist, we’ll use the MatchZoo library to create a custom preprocessor. First,  
 ###Preprocessor:
 First, import the required packages
 ```python
+import matchzoo as mz
 from matchzoo import DataPack
 from matchzoo.engine.base_preprocessor import BasePreprocessor
+from matchzoo.preprocessors.units.unit import Unit
 from matchzoo.engine.base_model import BaseModel
+from matchzoo.preprocessors import units
 from nltk.tokenize import RegexpTokenizer
 import gensim.downloader as gensim
 import tensorflow as tf
-from matchzoo.preprocessors import units
 import numpy as np
-from matchzoo.preprocessors.units.unit import Unit
-import matchzoo as mz
+import pandas as pd
 import keras
+
 ```
 Next, set up the word embedding model
 ```python
