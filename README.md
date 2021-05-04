@@ -24,10 +24,10 @@ In this tutorial, we will understand not only how additive attention mechanisms 
 ***!!! Important: MatchZoo relies on an older version of Keras.metrics. It would be a good idea (and may be necessary) to create a new virtual environment (venv) before installing MatchZoo and running your code!!!***
 
 The code below is run with the following dependencies (not a complete list)
-Keras: Version 2.3.0
-Tensorflow: Version 2.2.1
-Numpy: Version 1.18.5
-MatchZoo: 2.2.0
+- Keras: Version 2.3.0
+- Tensorflow: Version 2.2.1
+- Numpy: Version 1.18.5
+- MatchZoo: 2.2.0
 
 
 ## Defining our NLP/IR Task
