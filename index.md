@@ -27,7 +27,7 @@ The code below is run with the following dependencies (not a complete list)
 - Keras: Version 2.3.0
 - Tensorflow: Version 2.2.1
 - Numpy: Version 1.18.5
-- MatchZoo: 2.2.0
+- MatchZoo: Version 2.2.0
 
 
 ## Defining our NLP/IR Task
