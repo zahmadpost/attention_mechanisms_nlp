@@ -1,4 +1,5 @@
 # Attention Mechanisms in Deep Learning Natural Language Processing Tasks
+## A Code Walk-Through Using Numpy, Keras, TensorFlow, and MatchZoo
 
 This tutorial is an introduction to attention mechanisms. It will walk you through implementing additive attention mechanisms 'from scratch' using numpy. The additive attention mechanism is introduced in a deep learning-based natural language processing model that can be used in information retrieval tasks. 
 
@@ -18,9 +19,16 @@ Due to their soaring popularity in recent years, attention mechanisms have been 
 Information Retrieval (IR) is one family of tasks within NLP. Within IR are several common tasks: question answering, text matching, search engines, and recommender systems. The critical goal of IR is to reduce information overload, that is, to provide the most relevant information from a large collection of resources. As attention mechanisms seek to understand exactly which words in a sentence or sentences in a text are the most important in their context, they may be well suited for IR tasks. 
 
 ## MatchZoo
-In this tutorial, we will understand not only how additive attention mechanisms function, we will also use one in the context of IR. Specifically, we will use an additive attention mechanism within a DL model designed for short text matching. Short text matching uses an NLP model to predict the semantic relevance of two texts (citation: https://www.cil.pku.edu.cn/docs/2019-07/20190731123828506844.pdf) In order to set up the structure of our short text matching model, we will be utilizing MatchZoo, a Python library that implements several state-of-the-art DL-based short text matching models (citation: https://github.com/NTMC-Community/MatchZoo ) including DSSM, MV-LSTM, and Conv-KNRM. MatchZoo provides a convenient data object called a data pack, which takes as inputs three columns of text. The first column contains the query text. In IR, a query text is the text that we know, or wish to know more about. The second column contains the document text. Document texts can be any number of texts from an information store. The document text is what we need to filter through to find a semantically relevant match to the query text. As we are training a supervised DL model, the third column will be the labels. These labels tell our model which query-document text pairs are relevant and which are not. MatchZoo’s data pack object stores this information for us and preempts a good deal of pandas data frame manipulations while preprocessing the text. 
+In this tutorial, we will understand not only how additive attention mechanisms function, we will also use one in the context of IR. Specifically, we will use an additive attention mechanism within a DL model designed for short text matching. Short text matching uses an NLP model to predict the semantic relevance of two texts. In order to set up the structure of our short text matching model, we will be utilizing [MatchZoo](https://github.com/NTMC-Community/MatchZoo), a Python library that implements several state-of-the-art DL-based short text matching models including DSSM, MV-LSTM, and Conv-KNRM. MatchZoo provides a convenient data object called a data pack, which takes as inputs three columns of text. The first column contains the query text. In IR, a query text is the text that we know, or wish to know more about. The second column contains the document text. Document texts can be any number of texts from an information store. The document text is what we need to filter through to find a semantically relevant match to the query text. As we are training a supervised DL model, the third column will be the labels. These labels tell our model which query-document text pairs are relevant and which are not. MatchZoo’s data pack object stores this information for us and preempts a good deal of pandas data frame manipulations while preprocessing the text. 
 
 ***!!! Important: MatchZoo relies on an older version of Keras.metrics. It would be a good idea (and may be necessary) to create a new virtual environment (venv) before installing MatchZoo and running your code!!!***
+
+The code below is run with the following dependencies (not a complete list)
+- Keras: Version 2.3.0
+- Tensorflow: Version 2.2.1
+- Numpy: Version 1.18.5
+- MatchZoo: 2.2.0
+
 
 ## Defining our NLP/IR Task
 
@@ -34,11 +42,12 @@ Before we dig into the code, let’s define a toy problem: say we are searching 
 |Ivy League cancels winter sports because of COVID-19 | Kamala Harris Avoids Saying 'Net Zero' in Texas, Pennsylvania, But Says It in Other States | 0 |
 |Ivy League cancels winter sports because of COVID-19 | Lions' Matthew Stafford on biggest struggles this season: 'Um, all of it' | 0 |
 
-We can see that the query and document headlines have very few words in common. Although they are semantically similar, a traditional text matching approach would have a great deal of trouble matching these headlines. We need to understand which words in the query help to explain the words in the document. This is where our attention mechanism comes in!
-Let’s build a model that can help us determine which of the document texts is a semantic match to the query text. ***All of the code below can be found in a jupyter lab notebook in this repository. Additionally, some test data is available as a csv file.***
+This kind of dataset is known as a Gold Standard Dataset (or sometimes a ground truth dataset). This kind of labeled data is critical for machine learning and deep learning tasks. It allows our model to learn parameters that optimize an outcome that produces results as similar to the gold standard labels as possible. 
+We can see in the table above that the query and document headlines have very few words in common. Although they are semantically similar, a traditional text matching approach would have a great deal of trouble matching these headlines. We need to understand which words in the query help to explain the words in the document. This is where our attention mechanism comes in!
+Let’s build a model that can help us determine which of the document texts is a semantic match to the query text. ***All of the code below can be found in a [jupyter lab notebook](https://github.com/zahmadpost/ling539-tech-tutorial/blob/main/AdditiveAttentionTutorial.ipynb) in this repository. Additionally, [sample test data](https://github.com/zahmadpost/ling539-tech-tutorial/blob/main/sample_data.csv) is available as a csv file.***
 Fist, we’ll use the MatchZoo library to create a custom preprocessor. First,  we use Word2Vec (citation) trained on the Google News 300 data set to create 300-dimensional vectors to represent each word in each sentence of the query and document texts. The resulting embeddings for each document and each query will be a 30 by 300-dimensional matrix. We use 30 because most article headlines are generally shorter than 30. We will create symmetric padding (e.g. place rows of 0’s to the left and to the right) around each word in the matrix until it fills the 30x 300 shape. 
 
-###Preprocessor:
+Building the Preprocessor: 
 First, import the required packages
 ```python
 import matchzoo as mz
@@ -76,7 +85,7 @@ class FixedLengthUnit(Unit):
         post = tf.zeros([300,post_ct])
         return tf.concat([pre, input_, post], axis=1)
 ```
-Create the Attention Model Preprocessor (superclass is Base Preprocessor)
+Create the Attention Model Preprocessor (superclass is the MatchZoo Base Preprocessor)
 ```python
 class AttentionModelPreprocessor(BasePreprocessor):
     def __init__(self, fixed_length: int):
@@ -113,7 +122,8 @@ Use the MatchZoo data_pack objects to apply the tokenization on each side of the
         data_pack.apply_on_text(self._fixedlength_unit.transform, inplace=True, verbose=verbose)
         return data_pack
 ```
-Next, we’ll create the model using the Keras API. We’ll define the attention layer and weights:
+Now we're ready to create our deep learning model. We'll be using the Keras API, and we'll manually define the attention layer and the weights.
+The superclass for our Attention Text Matching Model is the MatchZoo Base Model.
 ```python
 class AttentionTextMatchingModel(BaseModel):
      
@@ -305,4 +315,13 @@ Now, we’re ready to save our model’s results to a CSV:
 ```python
 test_df.to_csv(‘AttentionModelResults.csv'
 ```
+## Evaluation Metrics
+As seen in the code above, we use the following evaluation metrics: Normalized Discounted Cummulative Gain (NDCG) @ 1, 3, and 5, Mean Average Precision, and Mean Reciprocal Rank. These metrics are common in Informaiton Retrieval tasks. In information retrieval, we aren't looking at just one result. In a perfect world, the exact match or answer to your query would always show up as the top result. In this case, a search engine would only ever need to return one result. However, that's not the world we live in. Often what we are searching for will appear in the 3rd or 5th result. This is what NDCG is measuring. IT's telling us how accurately our model is returning results in the first, third, and fifth positions. Mean Average Precision and Mean Reciprocal Rank are metrics that also quantify how well our model is performing. To learn more, check out [this fantastic tutorial](https://medium.com/swlh/rank-aware-recsys-evaluation-metrics-5191bba16832). 
+
+## Conclusion
+This tutorial covers some of the basics of attention mechanisms, information retrieval, evaluation metrics, and dives into the code of how to program an additive attention mechanism. We use an attention mechanism along with the MatchZoo Python library and demonstrate how to define a custom deep learning-based short text matching model using MatchZoo, Keras, Tensorflow, and Numpy. To read more about attention mechanisms, please visit some of the resources linked to below. Attention mechanisms can take your NLP models from average to extraordinary, and are relatively straightforward to implement! Give them a shot and share your results!
+## References
+* Nicholson, C. (n.d.). A Beginner’s Guide to Attention Mechanisms and Memory Networks. Pathmind. Retrieved May 1, 2021, from https://wiki.pathmind.com/attention-mechanism-memory-network
+* Lamba, H. (2019, May 9). Intuitive Understanding of Attention Mechanism in Deep Learning. Medium. https://towardsdatascience.com/intuitive-understanding-of-attention-mechanism-in-deep-learning-6c9482aecf4f
+* Weng, L. (2018, June 24). Attention? Attention! Lil’Log. https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html
 
