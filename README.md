@@ -38,7 +38,7 @@ We can see that the query and document headlines have very few words in common. 
 Let’s build a model that can help us determine which of the document texts is a semantic match to the query text. ***All of the code below can be found in a [jupyter lab notebook](https://github.com/zahmadpost/ling539-tech-tutorial/blob/main/AdditiveAttentionTutorial.ipynb) in this repository. Additionally, [sample test data](https://github.com/zahmadpost/ling539-tech-tutorial/blob/main/sample_data.csv) is available as a csv file.***
 Fist, we’ll use the MatchZoo library to create a custom preprocessor. First,  we use Word2Vec (citation) trained on the Google News 300 data set to create 300-dimensional vectors to represent each word in each sentence of the query and document texts. The resulting embeddings for each document and each query will be a 30 by 300-dimensional matrix. We use 30 because most article headlines are generally shorter than 30. We will create symmetric padding (e.g. place rows of 0’s to the left and to the right) around each word in the matrix until it fills the 30x 300 shape. 
 
-###Preprocessor:
+Building the Preprocessor: 
 First, import the required packages
 ```python
 import matchzoo as mz
@@ -76,7 +76,7 @@ class FixedLengthUnit(Unit):
         post = tf.zeros([300,post_ct])
         return tf.concat([pre, input_, post], axis=1)
 ```
-Create the Attention Model Preprocessor (superclass is Base Preprocessor)
+Create the Attention Model Preprocessor (superclass is the MatchZoo Base Preprocessor)
 ```python
 class AttentionModelPreprocessor(BasePreprocessor):
     def __init__(self, fixed_length: int):
@@ -113,7 +113,8 @@ Use the MatchZoo data_pack objects to apply the tokenization on each side of the
         data_pack.apply_on_text(self._fixedlength_unit.transform, inplace=True, verbose=verbose)
         return data_pack
 ```
-Next, we’ll create the model using the Keras API. We’ll define the attention layer and weights:
+Now we're ready to create our deep learning model. We'll be using the Keras API, and we'll manually define the attention layer and the weights.
+The superclass for our Attention Text Matching Model is the MatchZoo Base Model.
 ```python
 class AttentionTextMatchingModel(BaseModel):
      
